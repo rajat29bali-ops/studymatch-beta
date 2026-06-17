@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyMatch — Find Serious Study Partners</title>
+<meta name="description" content="Stop studying alone. Find matched study partners for JEE, NEET, UPSC & more. Built-in accountability, schedule sync, and progress tracking.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0E0F11; --ink-2: #3D3F47; --ink-3: #7B7D87; --ink-4: #B0B2BA;
+    --bg: #F5F4F0; --surface: #FFFFFF; --surface-2: #F0EFE9;
+    --accent: #4F46E5; --accent-soft: #EEF0FF;
+    --green: #1A8A5A; --green-soft: #E7F6EE;
+    --amber: #B45309; --amber-soft: #FEF3C7;
+    --border: #E2E1DA;
+    --radius: 12px; --radius-sm: 8px; --radius-lg: 20px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.6; }
+  h1,h2,h3,h4 { font-family: 'Space Grotesk', sans-serif; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(245,244,240,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex; align-items: center; gap: 0; height: 60px;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; margin-right: auto; }
+  .logo-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  .logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-link { font-size: 13px; font-weight: 500; color: var(--ink-3); text-decoration: none; padding: 7px 12px; border-radius: var(--radius-sm); transition: all 0.15s; }
+  .nav-link:hover { color: var(--ink); background: var(--surface-2); }
+  .nav-cta { background: var(--ink); color: white; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: var(--radius-sm); text-decoration: none; transition: opacity 0.15s; margin-left: 6px; }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* HERO */
+  .hero { padding: 90px 5% 80px; max-width: 1100px; margin: 0 auto; text-align: center; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin-bottom: 24px; border: 1px solid #D4D2FC; }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero-sub { font-size: 18px; color: var(--ink-3); max-width: 520px; margin: 0 auto 36px; }
+  .hero-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 24px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; border: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #3730A3; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(79,70,229,0.3); }
+  .btn-outline { background: var(--surface); color: var(--ink); border: 1.5px solid var(--border); }
+  .btn-outline:hover { background: var(--surface-2); }
+  .hero-trust { margin-top: 28px; font-size: 13px; color: var(--ink-4); display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .trust-item { display: flex; align-items: center; gap: 5px; }
+
+  /* STATS STRIP */
+  .stats-strip { background: var(--ink); padding: 32px 5%; }
+  .stats-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; text-align: center; }
+  .stat-n { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: white; }
+  .stat-l { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+  /* PAIN POINTS */
+  .section { padding: 72px 5%; max-width: 1100px; margin: 0 auto; }
+  .section-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px; }
+  .section-title { font-size: clamp(24px,4vw,38px); font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+  .section-sub { font-size: 16px; color: var(--ink-3); max-width: 480px; margin-bottom: 40px; }
+  .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .pain-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+  .pain-emoji { font-size: 28px; margin-bottom: 12px; }
+  .pain-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .pain-desc { font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+  .pain-source { font-size: 11px; color: var(--ink-4); margin-top: 10px; display: flex; align-items: center; gap: 4px; }
+
+  /* HOW IT WORKS */
+  .how-wrap { max-width: 1100px; margin: 0 auto; padding: 72px 5%; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 10px; position: relative; }
+  .step-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); position: relative; }
+  .step-num { width: 36px; height: 36px; background: var(--ink); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .step-desc { font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+  .step-tag { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: var(--accent-soft); color: var(--accent); }
+
+  /* FEATURES PREVIEW */
+  .features-wrap { background: var(--ink); padding: 72px 5%; }
+  .features-inner { max-width: 1100px; margin: 0 auto; }
+  .features-inner .section-title { color: white; }
+  .features-inner .section-sub { color: rgba(255,255,255,0.5); }
+  .features-inner .section-tag { color: #A5B4FC; }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .feat-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 20px; }
+  .feat-icon { font-size: 22px; margin-bottom: 10px; }
+  .feat-title { font-size: 14px; font-weight: 600; color: white; margin-bottom: 5px; }
+  .feat-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .feat-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(79,70,229,0.3); color: #A5B4FC; display: inline-block; margin-top: 8px; font-weight: 600; }
+
+  /* FEEDBACK SECTION */
+  .feedback-wrap { max-width: 680px; margin: 0 auto; padding: 72px 5%; }
+  .feedback-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--shadow-lg); }
+  .feedback-card .section-tag { text-align: center; }
+  .feedback-card .section-title { text-align: center; font-size: 26px; margin-bottom: 8px; }
+  .feedback-sub { text-align: center; font-size: 14px; color: var(--ink-3); margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 13px; font-weight: 500; color: var(--ink-2); margin-bottom: 6px; display: block; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; color: var(--ink); background: var(--bg);
+    font-family: 'Inter', sans-serif; outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); background: white; }
+  .form-textarea { resize: vertical; min-height: 90px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rating-row { display: flex; gap: 8px; }
+  .rating-btn { flex: 1; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; transition: all 0.15s; color: var(--ink-3); }
+  .rating-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .rating-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .submit-btn { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; margin-top: 6px; }
+  .submit-btn:hover { background: #3730A3; }
+  .success-msg { display: none; text-align: center; padding: 20px; }
+  .success-icon { font-size: 48px; margin-bottom: 12px; }
+  .success-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .success-sub { font-size: 14px; color: var(--ink-3); }
+
+  /* FOOTER */
+  footer { background: var(--ink); padding: 32px 5%; text-align: center; }
+  .footer-logo { display: flex; align-items: center; gap: 7px; justify-content: center; margin-bottom: 10px; }
+  .footer-text { font-size: 13px; color: rgba(255,255,255,0.35); }
+  .footer-links { display: flex; gap: 20px; justify-content: center; margin-top: 12px; }
+  .footer-link { font-size: 12px; color: rgba(255,255,255,0.35); text-decoration: none; }
+  .footer-link:hover { color: rgba(255,255,255,0.7); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: white; padding: 12px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(.34,1.56,.64,1); z-index: 999; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media(max-width:600px) {
+    .stats-inner { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-dot"></div>
+    <span class="logo-text">StudyMatch</span>
+  </a>
+  <div class="nav-links">
+    <a href="#pain-points" class="nav-link">Why It Exists</a>
+    <a href="#how-it-works" class="nav-link">How It Works</a>
+    <a href="#feedback" class="nav-link">Give Feedback</a>
+    <a href="login.html" class="nav-cta">Try the App →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Early Beta — Built for JEE · NEET · UPSC · GATE · CAT
+  </div>
+  <h1>Stop studying alone.<br><em>Find partners who won't quit.</em></h1>
+  <p class="hero-sub">Matched by exam, schedule, and seriousness — not randomly. Built-in accountability so groups actually survive.</p>
+  <div class="hero-btns">
+    <a href="login.html" class="btn btn-primary">Try the Demo →</a>
+    <a href="#feedback" class="btn btn-outline">Give Feedback</a>
+  </div>
+  <div class="hero-trust">
+    <div class="trust-item">✓ Free to use</div>
+    <div class="trust-item">✓ No app download needed</div>
+    <div class="trust-item">✓ Built by a student, for students</div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div><div class="stat-n">25M+</div><div class="stat-l">competitive exam aspirants in India</div></div>
+    <div><div class="stat-n">73%</div><div class="stat-l">students feel isolated during prep</div></div>
+    <div><div class="stat-n">3x</div><div class="stat-l">better outcomes with accountability</div></div>
+    <div><div class="stat-n">₹0</div><div class="stat-l">cost to join (always free tier)</div></div>
+  </div>
+</div>
+
+<!-- PAIN POINTS -->
+<div id="pain-points">
+  <div class="section">
+    <div class="section-tag">Why this exists</div>
+    <h2 class="section-title">Every student faces the same 5 problems</h2>
+    <p class="section-sub">Validated from Reddit r/JEE, r/NEET, r/UPSC, Quora India, and LinkedIn — thousands of posts, same pain.</p>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-emoji">😤</div>
+        <div class="pain-title">Can't find serious partners</div>
+        <div class="pain-desc">You join a Telegram group, half are lurkers, others drop out in 2 weeks. No way to tell who's actually committed.</div>
+        <div class="pain-source">📍 r/JEE · r/UPSC · Quora India</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">👻</div>
+        <div class="pain-title">Zero accountability</div>
+        <div class="pain-desc">Groups die silently. Someone misses a session, no follow-up. No system to track goals or flag ghosting members.</div>
+        <div class="pain-source">📍 r/indianstudents · r/NEET</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">⏰</div>
+        <div class="pain-title">Schedule mismatches</div>
+        <div class="pain-desc">Everyone wants to study together — but coaching, sleep patterns, and city time zones make sessions impossible to schedule.</div>
+        <div class="pain-source">📍 Quora · r/learnprogramming</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">🔥</div>
+        <div class="pain-title">Solo prep burnout</div>
+        <div class="pain-desc">Studying alone for 1–2 years causes motivation crashes. No one to check in with. No one who feels what you're going through.</div>
+        <div class="pain-source">📍 r/UPSC burnout threads</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">🏅</div>
+        <div class="pain-title">No proof of effort</div>
+        <div class="pain-desc">You can study for 2 years and have nothing verifiable to show. No proof-of-work layer exists for exam preparation.</div>
+        <div class="pain-source">📍 LinkedIn India edtech discussions</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="how-it-works" class="how-wrap">
+  <div class="section-tag">How it works</div>
+  <h2 class="section-title">From quiz to accountability group in 5 minutes</h2>
+  <p class="section-sub">No random matching. Every step is designed to filter for seriousness.</p>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-title">Take the Seriousness Quiz</div>
+      <div class="step-desc">Tell us your exam, daily study hours, weak topics, and available time slots. 2 minutes.</div>
+      <span class="step-tag">Filters casual users</span>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-title">Get Matched</div>
+      <div class="step-desc">Algorithm matches you with 3–4 students by exam, schedule overlap, and complementary weak topics.</div>
+      <span class="step-tag">Smart pairing</span>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-title">Sprint Together</div>
+      <div class="step-desc">Every Monday your pod sets a chapter goal. Every Friday everyone posts proof of completion.</div>
+      <span class="step-tag">Weekly accountability</span>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-title">Earn Your Passport</div>
+      <div class="step-desc">Build a verified Prep Passport — streaks, chapters, mock scores — sharable with mentors or colleges.</div>
+      <span class="step-tag">Proof of work</span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features-wrap">
+  <div class="features-inner">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">Everything a study pod needs</h2>
+    <p class="section-sub" style="margin-bottom:36px;">Built around the 5 pain points — not around features for the sake of features.</p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🎯</div>
+        <div class="feat-title">Seriousness Scoring</div>
+        <div class="feat-desc">Every user gets a 0–100 score based on quiz answers, check-in history, and sprint completion. No fake commitments.</div>
+        <span class="feat-badge">Pain point #1 & #5</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🗓</div>
+        <div class="feat-title">Schedule Overlap Finder</div>
+        <div class="feat-desc">Visual grid shows exactly when all 4 members are free. Best slot auto-suggested. One-click session booking.</div>
+        <span class="feat-badge">Pain point #3</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔥</div>
+        <div class="feat-title">Sprint + Streak System</div>
+        <div class="feat-desc">Weekly goals set on Monday, verified Friday. Miss 3 check-ins without notice? Your spot goes to waitlist.</div>
+        <span class="feat-badge">Pain point #2</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">😊</div>
+        <div class="feat-title">Mood Check-in</div>
+        <div class="feat-desc">Daily mood log. If 2+ members feel low, the group gets a support nudge. Catches burnout before it kills the pod.</div>
+        <span class="feat-badge">Pain point #4</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🏅</div>
+        <div class="feat-title">Prep Passport</div>
+        <div class="feat-desc">Verified, shareable card showing chapters covered, streaks, mock scores, and doubts solved. First of its kind.</div>
+        <span class="feat-badge">Pain point #5</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💬</div>
+        <div class="feat-title">Doubt Board</div>
+        <div class="feat-desc">Post doubts inside your pod first. Unanswered doubts escalate to a verified topper mentor (premium).</div>
+        <span class="feat-badge">Pain point #1</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK FORM -->
+<div id="feedback" class="feedback-wrap">
+  <div class="feedback-card">
+    <div class="section-tag" style="text-align:center;">You're shaping this product</div>
+    <h2 class="section-title">Give us your honest feedback</h2>
+    <p class="feedback-sub">This is a beta. Your feedback directly decides what gets built next. Takes 2 minutes.</p>
+
+    <div id="feedback-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input class="form-input" type="text" id="fb-name" placeholder="Rahul K.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone / WhatsApp</label>
+          <input class="form-input" type="tel" id="fb-phone" placeholder="+91 98765 43210">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email (optional)</label>
+        <input class="form-input" type="email" id="fb-email" placeholder="you@college.edu">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Which exam are you preparing for?</label>
+        <select class="form-select" id="fb-exam">
+          <option value="">Select exam...</option>
+          <option>JEE Advanced</option>
+          <option>JEE Mains</option>
+          <option>NEET</option>
+          <option>UPSC</option>
+          <option>GATE</option>
+          <option>CAT</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Which pain point hits you hardest?</label>
+        <select class="form-select" id="fb-pain">
+          <option value="">Select one...</option>
+          <option>Can't find serious study partners</option>
+          <option>No accountability in groups I join</option>
+          <option>Schedule mismatches with partners</option>
+          <option>Burnout / isolation during prep</option>
+          <option>No proof of my preparation effort</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Would you actually use this? (1 = No way · 5 = Sign me up now)</label>
+        <div class="rating-row">
+          <button class="rating-btn" onclick="selectRating(this,1)">1</button>
+          <button class="rating-btn" onclick="selectRating(this,2)">2</button>
+          <button class="rating-btn" onclick="selectRating(this,3)">3</button>
+          <button class="rating-btn" onclick="selectRating(this,4)">4</button>
+          <button class="rating-btn" onclick="selectRating(this,5)">5 🔥</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What should we build first? (be brutal)</label>
+        <textarea class="form-textarea" id="fb-text" placeholder="The thing I need most is... / I wouldn't use this because... / The biggest missing feature is..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Can we WhatsApp you for a 10-min call? (optional)</label>
+        <select class="form-select" id="fb-call">
+          <option value="">Select...</option>
+          <option>Yes, happy to chat!</option>
+          <option>Maybe, message me first</option>
+          <option>No thanks, just the form</option>
+        </select>
+      </div>
+      <button class="submit-btn" onclick="submitFeedback()">Submit Feedback →</button>
+    </div>
+
+    <div class="success-msg" id="success-msg">
+      <div class="success-icon">✦</div>
+      <div class="success-title">Thank you! You're shaping StudyMatch.</div>
+      <div class="success-sub">We read every response. If you opted in for a call, we'll WhatsApp you within 48 hours.<br><br>Meanwhile, try the full demo app:</div>
+      <a href="login.html" class="btn btn-primary" style="margin-top:16px; display:inline-flex;">Try the App Demo →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="logo-dot"></div>
+    <span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; color:white;">StudyMatch</span>
+  </div>
+  <div class="footer-text">Built by a student, for students · Early Beta 2025</div>
+  <div class="footer-links">
+    <a href="#feedback" class="footer-link">Feedback</a>
+    <a href="login.html" class="footer-link">Try Demo</a>
+    <a href="#pain-points" class="footer-link">Why It Exists</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let selectedRating = 0;
+  function selectRating(el, val) {
+    selectedRating = val;
+    document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function submitFeedback() {
+    const name = document.getElementById('fb-name').value.trim();
+    const phone = document.getElementById('fb-phone').value.trim();
+    const exam = document.getElementById('fb-exam').value;
+    if (!name || !phone || !exam) {
+      showToast('⚠ Please fill in name, phone, and exam');
+      return;
+    }
+    // Save to localStorage for demo purposes
+    const entry = {
+      name, phone,
+      email: document.getElementById('fb-email').value,
+      exam,
+      pain: document.getElementById('fb-pain').value,
+      rating: selectedRating,
+      text: document.getElementById('fb-text').value,
+      call: document.getElementById('fb-call').value,
+      ts: new Date().toISOString()
+    };
+    const existing = JSON.parse(localStorage.getItem('sm_feedback') || '[]');
+    existing.push(entry);
+    localStorage.setItem('sm_feedback', JSON.stringify(existing));
+
+    document.getElementById('feedback-form').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

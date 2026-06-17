@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyMatch — Feedback Inbox (Admin)</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0E0F11; --ink-2:#3D3F47; --ink-3:#7B7D87; --ink-4:#B0B2BA;
+    --bg:#F5F4F0; --surface:#FFFFFF; --surface-2:#F0EFE9;
+    --accent:#4F46E5; --accent-soft:#EEF0FF;
+    --green:#1A8A5A; --green-soft:#E7F6EE;
+    --amber:#B45309; --amber-soft:#FEF3C7;
+    --border:#E2E1DA; --radius:12px; --radius-sm:8px;
+    --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.05);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--ink); padding:32px 5%; }
+  h1,h2 { font-family:'Space Grotesk',sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:10px; }
+  h1 { font-size:24px; font-weight:700; }
+  .sub { font-size:13px; color:var(--ink-3); margin-bottom:24px; }
+  .nav-link { font-size:13px; color:var(--accent); text-decoration:none; font-weight:600; }
+  .notice { background:var(--amber-soft); color:var(--amber); border-radius:var(--radius-sm); padding:12px 16px; font-size:13px; margin-bottom:24px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+  .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+  .stat-n { font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; }
+  .stat-l { font-size:12px; color:var(--ink-3); margin-top:2px; }
+  .entry { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:12px; box-shadow:var(--shadow); }
+  .entry-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px; flex-wrap:wrap; }
+  .entry-name { font-size:15px; font-weight:600; }
+  .entry-meta { font-size:12px; color:var(--ink-4); }
+  .entry-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+  .tag { font-size:11px; padding:2px 9px; border-radius:20px; font-weight:600; }
+  .tag-blue { background:var(--accent-soft); color:var(--accent); }
+  .tag-green { background:var(--green-soft); color:var(--green); }
+  .tag-amber { background:var(--amber-soft); color:var(--amber); }
+  .entry-text { font-size:13px; color:var(--ink-2); line-height:1.6; background:var(--surface-2); padding:10px 12px; border-radius:8px; }
+  .empty { text-align:center; padding:60px 20px; color:var(--ink-3); }
+  .empty-icon { font-size:40px; margin-bottom:12px; }
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--surface); color:var(--ink); margin-right:8px; font-family:'Inter',sans-serif; }
+  .btn:hover { background:var(--surface-2); }
+  .btn-danger { color:#B91C1C; border-color:#FBCACA; }
+  .toolbar { margin-bottom:20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>📥 Feedback Inbox</h1>
+    <a href="index.html" class="nav-link">← Back to home</a>
+  </div>
+  <p class="sub">All responses submitted on this device — from the landing page form and in-app feedback widget.</p>
+
+  <div class="notice">⚠ This data is stored in this browser's localStorage only — it does <strong>not</strong> sync across devices. To collect feedback from many students, connect a simple backend (Google Form, Airtable, or Supabase) — see note at the bottom.</div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="exportCSV()">⬇ Export as CSV</button>
+    <button class="btn btn-danger" onclick="clearAll()">🗑 Clear All</button>
+  </div>
+
+  <div id="entries"></div>
+</div>
+
+<script>
+  function loadData() {
+    const landing = JSON.parse(localStorage.getItem('sm_feedback') || '[]');
+    return landing.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+  }
+
+  function render() {
+    const data = loadData();
+    const statsEl = document.getElementById('stats');
+    const entriesEl = document.getElementById('entries');
+
+    const avgRating = data.filter(d=>d.rating).length
+      ? (data.reduce((s,d)=>s+(Number(d.rating)||0),0) / data.filter(d=>d.rating).length).toFixed(1)
+      : '—';
+    const wantCall = data.filter(d => d.call && d.call.startsWith('Yes')).length;
+
+    statsEl.innerHTML = `
+      <div class="stat"><div class="stat-n">${data.length}</div><div class="stat-l">Total responses</div></div>
+      <div class="stat"><div class="stat-n">${avgRating}</div><div class="stat-l">Avg "would use" rating</div></div>
+      <div class="stat"><div class="stat-n">${wantCall}</div><div class="stat-l">Open to a call</div></div>
+      <div class="stat"><div class="stat-n">${new Set(data.map(d=>d.exam).filter(Boolean)).size}</div><div class="stat-l">Different exams</div></div>
+    `;
+
+    if (data.length === 0) {
+      entriesEl.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div style="font-weight:600; margin-bottom:4px;">No feedback yet</div><div style="font-size:13px;">Share the link with students — responses will appear here.</div></div>`;
+      return;
+    }
+
+    entriesEl.innerHTML = data.map(d => `
+      <div class="entry">
+        <div class="entry-top">
+          <div>
+            <div class="entry-name">${escapeHtml(d.name || 'Anonymous')}</div>
+            <div class="entry-meta">${d.phone ? '📱 ' + escapeHtml(d.phone) + ' · ' : ''}${d.email ? '✉ ' + escapeHtml(d.email) + ' · ' : ''}${new Date(d.ts).toLocaleString()}</div>
+          </div>
+          ${d.rating ? `<span class="tag tag-green">Rating: ${d.rating}/5</span>` : ''}
+        </div>
+        <div class="entry-tags">
+          ${d.exam ? `<span class="tag tag-blue">${escapeHtml(d.exam)}</span>` : ''}
+          ${d.pain ? `<span class="tag tag-amber">${escapeHtml(d.pain)}</span>` : ''}
+          ${d.page ? `<span class="tag tag-blue">Screen: ${escapeHtml(d.page.replace('page-',''))}</span>` : ''}
+          ${d.call ? `<span class="tag tag-green">${escapeHtml(d.call)}</span>` : ''}
+        </div>
+        ${d.text ? `<div class="entry-text">"${escapeHtml(d.text)}"</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function exportCSV() {
+    const data = loadData();
+    if (!data.length) { alert('No data to export yet.'); return; }
+    const cols = ['name','phone','email','exam','pain','rating','text','call','page','ts'];
+    const rows = [cols.join(',')];
+    data.forEach(d => {
+      rows.push(cols.map(c => `"${String(d[c] ?? '').replace(/"/g,'""')}"`).join(','));
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'studymatch_feedback.csv';
+    a.click();
+  }
+
+  function clearAll() {
+    if (confirm('Delete all stored feedback on this device? This cannot be undone.')) {
+      localStorage.removeItem('sm_feedback');
+      render();
+    }
+  }
+
+  render();
+</script>
+</body>
+</html>
